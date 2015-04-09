@@ -2,7 +2,7 @@
     'use strict';
 
     var world, timeStep=1/60, camera, scene, renderer,
-        actuator, actuator_b;
+        actuator_a, actuator_b;
 
     initThree();
     initCannon();
@@ -44,28 +44,30 @@
             new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         groundBody.addShape(groundShape);
         world.add(groundBody);
-
         groundMesh = new THREE.Mesh(
             new THREE.PlaneGeometry(200, 200, 8, 8),
             new THREE.MeshBasicMaterial({color: 'blue', side: THREE.DoubleSide})
         );
         scene.add(groundMesh);
 
-        actuator = new Actuator();
-        world.add(actuator.body);
-        scene.add(actuator.mesh);
+        actuator_a = new Actuator();
+        world.add(actuator_a.body);
+        scene.add(actuator_a.mesh);
 
-        actuator_b = new Actuator({amplitude: 0, position: new CANNON.Vec3(0, 20, 3)});
+        actuator_b = new Actuator({amplitude: 0, position: new CANNON.Vec3(0, 10, 0)});
         world.add(actuator_b.body);
         scene.add(actuator_b.mesh);
+
+        world.addConstraint(actuator_a.addTopActuator(actuator_b));
     }
 
     var start;
     function animate(timestamp) {
+        timestamp = timestamp || 0;
         if (!start) { start = timestamp; }
         var elapsed = timestamp - start;
 
-        actuator.step(elapsed);
+        actuator_a.step(elapsed);
         actuator_b.step(elapsed);
         groundMesh.position.copy(groundBody.position);
         groundMesh.quaternion.copy(groundBody.quaternion);
