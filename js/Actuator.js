@@ -17,9 +17,8 @@
             HEIGHT * MESH_SCALE,
             WIDTH * MESH_SCALE
         );
-        var material = new THREE.MeshBasicMaterial({
-            color: 0xff0000,
-            wireframe: true
+        var material = new THREE.MeshLambertMaterial({
+            color: 0x2c569e
         });
         this.mesh = new THREE.Mesh(geometry, material);
     };

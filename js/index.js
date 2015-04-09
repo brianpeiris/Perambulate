@@ -1,12 +1,15 @@
 (function () {
     'use strict';
 
-    var world, timeStep=1/60, camera, scene, renderer,
+    var
+        world, timeStep=1/60,
+        camera, scene, controls, effect, renderer, manager,
         actuator_a, actuator_b;
 
     initThree();
     initCannon();
     initThings();
+    document.querySelector('.loading-indicator').style.display = 'none';
     animate();
 
     function initCannon() {
@@ -19,16 +22,24 @@
     function initThree() {
         scene = new THREE.Scene();
 
-        camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 100 );
+        camera = new THREE.PerspectiveCamera(
+            75, window.innerWidth / window.innerHeight, 1, 100 );
         camera.position.set(10, 10, 10);
         camera.lookAt(scene.position);
         camera.translateZ(20);
-        scene.add( camera );
 
-        scene.add(new THREE.PointLight());
+        controls = new THREE.VRControls(camera);
+
+        scene.add(new THREE.AmbientLight(0x404040));
+        var light = new THREE.DirectionalLight(0xffffff, 0.5);
+        light.position.set(10, 10, 0);
+        scene.add(light);
 
         renderer = new THREE.WebGLRenderer();
-        renderer.setSize( window.innerWidth, window.innerHeight );
+        effect = new THREE.VREffect(renderer);
+        effect.setSize( window.innerWidth, window.innerHeight );
+
+        manager = new WebVRManager(renderer, effect);
 
         document.body.appendChild( renderer.domElement );
     }
@@ -46,7 +57,7 @@
         world.add(groundBody);
         groundMesh = new THREE.Mesh(
             new THREE.PlaneGeometry(200, 200, 8, 8),
-            new THREE.MeshBasicMaterial({color: 'blue', side: THREE.DoubleSide})
+            new THREE.MeshLambertMaterial({color: 0xe6e6e6, side: THREE.DoubleSide})
         );
         scene.add(groundMesh);
 
@@ -67,16 +78,25 @@
         if (!start) { start = timestamp; }
         var elapsed = timestamp - start;
 
+        controls.update();
+
         actuator_a.step(elapsed);
         actuator_b.step(elapsed);
         groundMesh.position.copy(groundBody.position);
         groundMesh.quaternion.copy(groundBody.quaternion);
 
-
         world.step(timeStep);
 
-        renderer.render(scene, camera);
+        manager.render(scene, camera);
 
         requestAnimationFrame(animate);
     }
+
+    function resizeScene() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        effect.setSize( window.innerWidth, window.innerHeight );
+    }
+
+    window.addEventListener('resize', resizeScene, false);
 }());

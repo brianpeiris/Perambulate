@@ -2,6 +2,8 @@
   "name": "SumoPlay",
   "dependencies": {
     "cannon.js": "schteppe/cannon.js#v0.6.2",
-    "threejs": "*"
+    "leapjs": "~0.6.2",
+    "three.js": "mrdoob/three.js#1f1d418e6dffadf7d17d650ad630aa5a48986750",
+    "webvr-boilerplate": "borismus/webvr-boilerplate#95af06476e62621fb2c677f3ca05d5e0dfffa408"
   }
 }
