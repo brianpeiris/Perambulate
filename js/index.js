@@ -22,6 +22,7 @@
         camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 100 );
         camera.position.set(10, 10, 10);
         camera.lookAt(scene.position);
+        camera.translateZ(20);
         scene.add( camera );
 
         scene.add(new THREE.PointLight());
@@ -35,13 +36,12 @@
     var groundBody, groundMesh;
     function initThings() {
         var groundShape = new CANNON.Plane();
-        var quat = new CANNON.Quaternion();
-        quat.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         groundBody = new CANNON.Body({
-            mass: 0,
-            position: new CANNON.Vec3(0, -5, 0),
-            quaternion: quat
+            mass: 0
         });
+        groundBody.position.set(0, -5, 0);
+        groundBody.quaternion.setFromAxisAngle(
+            new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         groundBody.addShape(groundShape);
         world.add(groundBody);
 
@@ -55,7 +55,7 @@
         world.add(actuator.body);
         scene.add(actuator.mesh);
 
-        actuator_b = new Actuator({amplitude: 0, position: new CANNON.Vec3(0, 5, 0)});
+        actuator_b = new Actuator({amplitude: 0, position: new CANNON.Vec3(0, 20, 3)});
         world.add(actuator_b.body);
         scene.add(actuator_b.mesh);
     }
@@ -76,9 +76,5 @@
         renderer.render(scene, camera);
 
         requestAnimationFrame(animate);
-    }
-
-    function updatePhysics() {
-        // Step the physics world
     }
 }());
