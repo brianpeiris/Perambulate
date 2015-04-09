@@ -20,7 +20,10 @@
         this.mesh.position.copy(this.body.position);
         this.mesh.quaternion.copy(this.body.quaternion);
         var rate = Math.PI / (2 * 1000);
-        this.mesh.scale.setY(1 + Math.sin(elapsed * rate) * this.amplitude);
+        var height = 1 + Math.sin(elapsed * rate) * this.amplitude;
+        this.mesh.scale.setY(height);
+        this.shape.halfExtents.y = height;
+        this.shape.updateConvexPolyhedronRepresentation();
     };
     window.Actuator = Actuator;
 })();
