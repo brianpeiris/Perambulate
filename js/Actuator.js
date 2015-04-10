@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     var MESH_SCALE = 2;
-    var WIDTH = 1;
-    var HEIGHT = 2;
+    var WIDTH = 0.1;
+    var HEIGHT = 0.2;
     var Actuator = function (options) {
         options = options || {};
         this.amplitude = options.amplitude === undefined ? 1 : options.amplitude;
@@ -32,7 +32,7 @@
         var bodyHeight = HEIGHT * this.scale;
         this.shape.halfExtents.y = bodyHeight;
         if (this.topActuatorConstraint) {
-            this.topActuatorConstraint.pivotA.y = bodyHeight + CONSTRAINT_OFFSET;
+            this.topActuatorConstraint.pivotA.y = bodyHeight + HEIGHT * CONSTRAINT_OFFSET;
         }
         this.shape.updateConvexPolyhedronRepresentation();
     };
@@ -40,9 +40,9 @@
         this.topActuator = actuator;
         this.topActuatorConstraint = new CANNON.PointToPointConstraint(
             this.body,
-            new CANNON.Vec3(0, HEIGHT + CONSTRAINT_OFFSET, 0),
+            new CANNON.Vec3(0, HEIGHT + HEIGHT * CONSTRAINT_OFFSET, 0),
             actuator.body,
-            new CANNON.Vec3(0, -HEIGHT - CONSTRAINT_OFFSET, 0)
+            new CANNON.Vec3(0, -HEIGHT - HEIGHT * CONSTRAINT_OFFSET, 0)
         );
         return this.topActuatorConstraint;
     };

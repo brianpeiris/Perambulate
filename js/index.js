@@ -5,10 +5,12 @@
         world, timeStep=1/60,
         camera, scene, controls, effect, renderer, manager,
         actuator_a, actuator_b;
+    var CAMERA_OFFSET = new THREE.Vector3(0, 1, 1);
 
     initThree();
     initCannon();
     initThings();
+    initLeap();
     document.querySelector('.loading-indicator').style.display = 'none';
     animate();
 
@@ -24,9 +26,7 @@
 
         camera = new THREE.PerspectiveCamera(
             75, window.innerWidth / window.innerHeight, 1, 100 );
-        camera.position.set(10, 10, 10);
-        camera.lookAt(scene.position);
-        camera.translateZ(20);
+        camera.position.add(CAMERA_OFFSET);
 
         controls = new THREE.VRControls(camera);
 
@@ -50,7 +50,7 @@
         groundBody = new CANNON.Body({
             mass: 0
         });
-        groundBody.position.set(0, -5, 0);
+        groundBody.position.set(0, -1, 0);
         groundBody.quaternion.setFromAxisAngle(
             new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         groundBody.addShape(groundShape);
@@ -61,15 +61,26 @@
         );
         scene.add(groundMesh);
 
-        actuator_a = new Actuator();
+        actuator_a = new Actuator({amplitude: 0, position: new CANNON.Vec3(0.5, 1, 0)});
         world.add(actuator_a.body);
         scene.add(actuator_a.mesh);
 
-        actuator_b = new Actuator({amplitude: 0, position: new CANNON.Vec3(0, 10, 0)});
+        actuator_b = new Actuator({amplitude: 0, position: new CANNON.Vec3(0, 1, 0)});
         world.add(actuator_b.body);
         scene.add(actuator_b.mesh);
 
-        world.addConstraint(actuator_a.addTopActuator(actuator_b));
+        // world.addConstraint(actuator_a.addTopActuator(actuator_b));
+    }
+
+    function initLeap() {
+        Leap.loop();
+        Leap.loopController.use('transform', {
+            vr: true,
+            effectiveParent: camera
+        });
+        Leap.loopController.user('boneHand', {
+            scene: scene
+        });
     }
 
     var start;
@@ -79,6 +90,9 @@
         var elapsed = timestamp - start;
 
         controls.update();
+        if (manager.isVRMode()) {
+            camera.position.add(CAMERA_OFFSET);
+        }
 
         actuator_a.step(elapsed);
         actuator_b.step(elapsed);
@@ -97,6 +111,12 @@
         camera.updateProjectionMatrix();
         effect.setSize( window.innerWidth, window.innerHeight );
     }
-
     window.addEventListener('resize', resizeScene, false);
+
+    function onKey(event) {
+        if (event.code === 'KeyZ' ) {
+            controls.zeroSensor();
+        }
+    }
+    window.addEventListener('keydown', onKey, true);
 }());
