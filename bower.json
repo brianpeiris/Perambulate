@@ -1,9 +1,11 @@
 {
-  "name": "SumoPlay",
+  "name": "Perambulate",
   "dependencies": {
     "cannon.js": "schteppe/cannon.js#v0.6.2",
-    "leapjs": "~0.6.2",
-    "three.js": "mrdoob/three.js#1f1d418e6dffadf7d17d650ad630aa5a48986750",
-    "webvr-boilerplate": "borismus/webvr-boilerplate#95af06476e62621fb2c677f3ca05d5e0dfffa408"
+    "leapjs": "4f50e58ba916d65fba48b3f39566047ec659a9f6",
+    "leapjs-plugins": "158dbd7fdf6d53d21df515445d68fc0909c1d126",
+    "three.js": "brianpeiris/three.js#9fd6070edd0ce9e4156d23d7e954eb7bb43c3d0",
+    "webvr-boilerplate": "borismus/webvr-boilerplate#95af06476e62621fb2c677f3ca05d5e0dfffa408",
+    "backbone": "~1.1.2"
   }
 }

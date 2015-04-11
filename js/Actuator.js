@@ -1,8 +1,8 @@
 (function () {
     'use strict';
     var MESH_SCALE = 2;
-    var WIDTH = 0.1;
-    var HEIGHT = 0.2;
+    var WIDTH = 0.0125;
+    var HEIGHT = 0.05;
     var Actuator = function (options) {
         options = options || {};
         this.amplitude = options.amplitude === undefined ? 1 : options.amplitude;
