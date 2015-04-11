@@ -3,6 +3,7 @@
     var MESH_SCALE = 2;
     var WIDTH = 0.0125;
     var HEIGHT = 0.05;
+
     var Actuator = function (options) {
         options = options || {};
         this.amplitude = options.amplitude === undefined ? 1 : options.amplitude;
@@ -18,11 +19,13 @@
             WIDTH * MESH_SCALE
         );
         var material = new THREE.MeshLambertMaterial({
-            color: 0x2c569e
+            color: options.color
         });
         this.mesh = new THREE.Mesh(geometry, material);
     };
+
     var CONSTRAINT_OFFSET = 1.5;
+
     Actuator.prototype.step = function (elapsed) {
         this.mesh.position.copy(this.body.position);
         this.mesh.quaternion.copy(this.body.quaternion);
@@ -36,6 +39,7 @@
         }
         this.shape.updateConvexPolyhedronRepresentation();
     };
+
     Actuator.prototype.addTopActuator = function (actuator) {
         this.topActuator = actuator;
         this.topActuatorConstraint = new CANNON.PointToPointConstraint(
@@ -46,5 +50,6 @@
         );
         return this.topActuatorConstraint;
     };
+
     window.Actuator = Actuator;
 })();

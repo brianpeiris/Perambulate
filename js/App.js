@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    var CAMERA_OFFSET = new THREE.Vector3(0, 0.25, 0.25);
+    var CAMERA_OFFSET = new THREE.Vector3(0, 0, 0.25);
 
     var App = function (width, height, cavnvas) {
         this.width = width;
@@ -12,8 +12,9 @@
         this._initVR();
         this._initCannon();
         this._initScene();
-        this.workbench = new Workbench(this.world, this.scene);
         this._initLeap();
+        this.workbench = new Workbench(
+            this.world, this.scene, Leap.loopController);
         this.trigger('initialized');
         this._animate();
     };
@@ -78,8 +79,8 @@
     App.prototype._initLeap = function () {
         Leap.loop();
         Leap.loopController.use('transform', {
-            vr: true,
-            effectiveParent: this.camera
+            vr: 'desktop',
+            position: new THREE.Vector3(0, -0.1, 0)
         });
         Leap.loopController.use('boneHand', {
             scene: this.scene
