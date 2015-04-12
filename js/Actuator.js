@@ -7,6 +7,10 @@
     var Actuator = function (options) {
         options = options || {};
         this.amplitude = options.amplitude === undefined ? 1 : options.amplitude;
+
+        this.topActuators = [];
+        this.topActuatorConstraints = [];
+
         this.shape = new CANNON.Box(new CANNON.Vec3(
             WIDTH, HEIGHT, WIDTH));
         this.body = new CANNON.Body({mass: 1, position: options.position});
@@ -18,37 +22,58 @@
             HEIGHT * MESH_SCALE,
             WIDTH * MESH_SCALE
         );
-        var material = new THREE.MeshLambertMaterial({
+        this.material = new THREE.MeshLambertMaterial({
             color: options.color
         });
-        this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh = new THREE.Mesh(geometry, this.material);
     };
 
-    var CONSTRAINT_OFFSET = 1.5;
+    var CONSTRAINT_OFFSET = 0.5;
 
     Actuator.prototype.step = function (elapsed) {
         this.mesh.position.copy(this.body.position);
         this.mesh.quaternion.copy(this.body.quaternion);
+
         var rate = Math.PI / (2 * 1000);
         this.scale = 1 + (Math.sin(elapsed * rate) + 1) / 2 * this.amplitude;
         this.mesh.scale.setY(this.scale);
+
         var bodyHeight = HEIGHT * this.scale;
         this.shape.halfExtents.y = bodyHeight;
-        if (this.topActuatorConstraint) {
-            this.topActuatorConstraint.pivotA.y = bodyHeight + HEIGHT * CONSTRAINT_OFFSET;
-        }
+
+        this.topActuatorConstraints.forEach(function (topActuatorConstraint) {
+            topActuatorConstraint.pivotA.y = bodyHeight + HEIGHT * CONSTRAINT_OFFSET;
+        });
+
         this.shape.updateConvexPolyhedronRepresentation();
     };
 
+    var TOP_JOIN_POINT = new CANNON.Vec3(0, HEIGHT + HEIGHT * CONSTRAINT_OFFSET, 0);
+    var BOTTOM_JOIN_POINT = new CANNON.Vec3(0, -HEIGHT - HEIGHT * CONSTRAINT_OFFSET, 0);
+
     Actuator.prototype.addTopActuator = function (actuator) {
-        this.topActuator = actuator;
-        this.topActuatorConstraint = new CANNON.PointToPointConstraint(
+        if (this.topActuators.length === 0)  {
+            var joinMesh = new THREE.Mesh(
+                new THREE.SphereGeometry(HEIGHT * CONSTRAINT_OFFSET),
+                this.material
+            );
+            joinMesh.position.set(0, HEIGHT + HEIGHT * CONSTRAINT_OFFSET, 0);
+            this.mesh.add(joinMesh);
+        }
+        this.topActuators.push(actuator);
+        var actuatorConstraint = new CANNON.PointToPointConstraint(
             this.body,
-            new CANNON.Vec3(0, HEIGHT + HEIGHT * CONSTRAINT_OFFSET, 0),
+            TOP_JOIN_POINT,
             actuator.body,
-            new CANNON.Vec3(0, -HEIGHT - HEIGHT * CONSTRAINT_OFFSET, 0)
+            BOTTOM_JOIN_POINT
         );
-        return this.topActuatorConstraint;
+        this.topActuatorConstraints.push(actuatorConstraint);
+        console.log('joined actuators');
+        return actuatorConstraint;
+    };
+
+    Actuator.prototype.isJoinedTo = function (actuator) {
+        return this.topActuators.indexOf(actuator) !== -1;
     };
 
     window.Actuator = Actuator;

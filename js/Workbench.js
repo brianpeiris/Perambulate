@@ -1,28 +1,37 @@
 (function () {
     var Workbench = function (world, scene, leapController) {
-        var actuator_a = new Actuator({
-            amplitude: 0,
-            position: new CANNON.Vec3(0.1, 0, 0),
-            color: 'blue'
-        });
-        world.add(actuator_a.body);
-        scene.add(actuator_a.mesh);
-
-        actuator_b = new Actuator({
-            amplitude: 0,
-            position: new CANNON.Vec3(-0.1, 0, 0),
-            color: 'red'
-        });
-        world.add(actuator_b.body);
-        // actuator_b.mesh.add(new THREE.AxisHelper(0.1));
-        scene.add(actuator_b.mesh);
-
-        this.actuators = [actuator_a, actuator_b];
+        this.world = world;
+        this.scene = scene;
+        this.actuators = [];
+        this.bodyActuatorMap = {};
+        this.addActuator('blue', new CANNON.Vec3(0.1, 0, 0));
+        this.addActuator('red', new CANNON.Vec3(-0.1, 0, 0));
 
         // world.addConstraint(actuator_a.addTopActuator(actuator_b));
 
         this.leapController = leapController;
         this.leapController.on('frame', this.interact.bind(this));
+    };
+
+    Workbench.prototype.addActuator = function (color, position) {
+        var actuator = new Actuator({
+            amplitude: 0,
+            position: position,
+            color: color
+        });
+        this.world.add(actuator.body);
+        actuator.mesh.add(new THREE.AxisHelper(0.08));
+        this.scene.add(actuator.mesh);
+        this.actuators.push(actuator);
+        this.bodyActuatorMap[actuator.body.id] = actuator;
+        actuator.body.addEventListener('collide', this.joinActuators.bind(this));
+    };
+
+    Workbench.prototype.joinActuators = function (event) {
+        var target = this.bodyActuatorMap[event.target.id];
+        var body = this.bodyActuatorMap[event.body.id];
+        if (target.isJoinedTo(body)) { return; }
+        this.world.addConstraint(body.addTopActuator(target));
     };
 
     Workbench.prototype.getClosestActuator = function (position) {
