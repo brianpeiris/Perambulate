@@ -14,6 +14,7 @@
             color: 'red'
         });
         world.add(actuator_b.body);
+        // actuator_b.mesh.add(new THREE.AxisHelper(0.1));
         scene.add(actuator_b.mesh);
 
         this.actuators = [actuator_a, actuator_b];
@@ -41,49 +42,45 @@
         var matrix = new THREE.Matrix4();
         matrix.set(
             arr[0], arr[1], arr[2], 0,
-            arr[3], arr[4], arr[5], 0,
-            arr[6], arr[7], arr[8], 0,
+            arr[4], arr[5], arr[6], 0,
+            arr[8], arr[9], arr[10], 0,
             0, 0, 0, 0
         );
         return matrix;
     };
 
-    Workbench.prototype.haveIntialFrame = function (hand) {
-        return (
-            this.initialFrame &&
-            this.initialFrame.valid &&
-            this.initialFrame.hands[0].id === hand.id
-        );
+    var ROTATION_OFFSET = new THREE.Quaternion().setFromAxisAngle(
+        new THREE.Vector3(0, 0, 1), -Math.PI / 2);
+    Workbench.prototype.getPalmQuaternion = function (hand) {
+        var quaternion = new THREE.Quaternion().setFromRotationMatrix(
+            getMatrixFromArray(hand.indexFinger.metacarpal.matrix()));
+        quaternion.inverse();
+        quaternion.multiply(ROTATION_OFFSET);
+        return quaternion;
     };
 
+    var POSITION_OFFSET = new THREE.Vector3(0.015, -0.005, -0.01);
     var GRAB_THRESHOLD = 0.8;
-    var ROTATION_OFFSET = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 0, 1),
-        Math.PI / 2
-    );
-    var POSITION_OFFSET = new THREE.Vector3(0, 0, 0.02);
     Workbench.prototype.interact = function (frame) {
         if (frame.hands.length === 0) { return; }
         var hand = frame.hands[0];
-        if (!this.haveIntialFrame(hand)) { this.initialFrame = frame; }
+
         var palmPosition = new THREE.Vector3().fromArray(hand.palmPosition);
-        palmPosition.add(POSITION_OFFSET);
-        var handRotation = hand.rotationMatrix(this.initialFrame);
-        var palmQuaternion = new THREE.Quaternion().setFromRotationMatrix(
-            getMatrixFromArray(handRotation)
-        );
-        palmQuaternion.multiply(ROTATION_OFFSET);
+
         if (!this.currentActuator && hand.grabStrength > GRAB_THRESHOLD) {
             var closestActuator = this.getClosestActuator(palmPosition);
             this.currentActuator = closestActuator;
         }
+
         if (hand.grabStrength <= GRAB_THRESHOLD) {
             this.currentActuator = null;
         }
+
         if (this.currentActuator) {
+            var palmQuaternion = this.getPalmQuaternion(hand);
+            this.currentActuator.body.quaternion.copy(palmQuaternion);
+            palmPosition.add(POSITION_OFFSET.clone().applyQuaternion(palmQuaternion));
             this.currentActuator.body.position.copy(palmPosition);
-            var actuatorQuaternion = this.currentActuator.body.quaternion;
-            actuatorQuaternion.copy(palmQuaternion);
         }
     };
 
