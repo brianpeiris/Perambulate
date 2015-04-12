@@ -2,15 +2,17 @@
     var Workbench = function (world, scene, leapController) {
         this.world = world;
         this.scene = scene;
+        this.leapController = leapController;
+
         this.actuators = [];
         this.bodyActuatorMap = {};
+
         this.addActuator('blue', new CANNON.Vec3(0.1, 0, 0));
         this.addActuator('red', new CANNON.Vec3(-0.1, 0, 0));
 
-        // world.addConstraint(actuator_a.addTopActuator(actuator_b));
-
-        this.leapController = leapController;
         this.leapController.on('frame', this.interact.bind(this));
+
+        this.mainControls = new MainControls(this.scene, this.leapController);
     };
 
     Workbench.prototype.addActuator = function (color, position) {
@@ -30,7 +32,7 @@
     Workbench.prototype.joinActuators = function (event) {
         var target = this.bodyActuatorMap[event.target.id];
         var body = this.bodyActuatorMap[event.body.id];
-        if (target.isJoinedTo(body)) { return; }
+        if (target.isJoinedTo(body) || body.isJoinedTo(target)) { return; }
         this.world.addConstraint(body.addTopActuator(target));
     };
 
@@ -47,37 +49,15 @@
         return closest;
     };
 
-    var getMatrixFromArray = function (arr) {
-        var matrix = new THREE.Matrix4();
-        matrix.set(
-            arr[0], arr[1], arr[2], 0,
-            arr[4], arr[5], arr[6], 0,
-            arr[8], arr[9], arr[10], 0,
-            0, 0, 0, 0
-        );
-        return matrix;
-    };
-
-    var ROTATION_OFFSET = new THREE.Quaternion().setFromAxisAngle(
-        new THREE.Vector3(0, 0, 1), -Math.PI / 2);
-    Workbench.prototype.getPalmQuaternion = function (hand) {
-        var quaternion = new THREE.Quaternion().setFromRotationMatrix(
-            getMatrixFromArray(hand.indexFinger.metacarpal.matrix()));
-        quaternion.inverse();
-        quaternion.multiply(ROTATION_OFFSET);
-        return quaternion;
-    };
-
     var POSITION_OFFSET = new THREE.Vector3(0.015, -0.005, -0.01);
     var GRAB_THRESHOLD = 0.8;
     Workbench.prototype.interact = function (frame) {
         if (frame.hands.length === 0) { return; }
         var hand = frame.hands[0];
-
-        var palmPosition = new THREE.Vector3().fromArray(hand.palmPosition);
+        var handHelper = new LeapHandHelper(hand);
 
         if (!this.currentActuator && hand.grabStrength > GRAB_THRESHOLD) {
-            var closestActuator = this.getClosestActuator(palmPosition);
+            var closestActuator = this.getClosestActuator(handHelper.palmPosition);
             this.currentActuator = closestActuator;
         }
 
@@ -86,10 +66,11 @@
         }
 
         if (this.currentActuator) {
-            var palmQuaternion = this.getPalmQuaternion(hand);
-            this.currentActuator.body.quaternion.copy(palmQuaternion);
-            palmPosition.add(POSITION_OFFSET.clone().applyQuaternion(palmQuaternion));
-            this.currentActuator.body.position.copy(palmPosition);
+            var actuatorQuaternion = 
+            this.currentActuator.body.quaternion.copy(handHelper.palmQuaternion);
+            var actuatorPosition = handHelper.palmPosition.clone().add(
+                POSITION_OFFSET.clone().applyQuaternion(handHelper.palmQuaternion));
+            this.currentActuator.body.position.copy(actuatorPosition);
         }
     };
 

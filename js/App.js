@@ -79,8 +79,10 @@
     App.prototype._initLeap = function () {
         Leap.loop();
         Leap.loopController.use('transform', {
-            vr: 'desktop',
-            position: new THREE.Vector3(0, -0.1, 0)
+            vr: true,
+            effectiveParent: this.camera,
+            //vr: 'desktop',
+            //position: new THREE.Vector3(0, -0.1, 0)
         });
         Leap.loopController.use('boneHand', {
             scene: this.scene
@@ -93,9 +95,9 @@
         var elapsed = timestamp - this.start;
 
         this.controls.update();
-        if (this.manager.isVRMode()) {
-            this.camera.position.add(CAMERA_OFFSET);
-        }
+        // if (this.manager.isVRMode()) {
+        this.camera.position.add(CAMERA_OFFSET);
+        // }
 
         this.groundMesh.position.copy(this.groundBody.position);
         this.groundMesh.quaternion.copy(this.groundBody.quaternion);
