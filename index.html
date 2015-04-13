@@ -2,7 +2,17 @@
 <html>
     <head>
         <style>
-            html, body, * { margin: 0; padding: 0; }
+            html, body, * { margin: 0; padding: 0; background: black; }
+            .glamContainer { width: 100%; height: 100%; position: absolute; }
+            .ground { color: grey; backface-visibility: visible; shader: lambert; }
+            .controlsBase { color: red; shader: lambert; }
+            .button {
+                color: blue;
+                shader: lambert;
+                radius: 0.02;
+                height: 0.02;
+                rx: 90deg;
+            }
         </style>
     </head>
     <body>
@@ -21,8 +31,35 @@
         <script src="bower_components/leapjs/leap-0.6.4.js"></script>
         <script src="bower_components/leapjs-plugins/main/leap-plugins-0.1.11pre.js"></script>
 
+        <script src="bower_components/three.js/examples/js/renderers/Projector.js"></script>
+        <script src="bower_components/glam/libs/tween.js/tween.min.js"></script>
+        <script>CLOSURE_NO_DEPS = true;</script>
+        <script src="bower_components/glam/build/glam-nodeps.js"></script>
+
         <script src="bower_components/underscore/underscore.js"></script>
         <script src="bower_components/backbone/backbone.js"></script>
+
+        <div class="glamContainer">
+            <glam id="glamRoot">
+                <scene>
+                    <light type="directional" x="10" y="10"></light>
+                    <light type="ambient" style="color:#404040"></light>
+                    <rect class="ground" y="-1" width="100" height="100" rx="90deg"></rect>
+                    <group id="mainControls">
+                        <group ry="90deg">
+                            <box
+                                class="controlsBase"
+                                width="0.2" height="0.05" depth="0.01"
+                                x="0.18">
+                                <cylinder class="button"></cylinder>
+                                <cylinder class="button" x="0.05"></cylinder>
+                                <cylinder class="button" x="0.10"></cylinder>
+                            </box>
+                        </group>
+                    </group>
+                </scene>
+            </glam>
+        </div>
 
         <script src="js/Actuator.js"></script>
         <script src="js/LeapHandHelper.js"></script>

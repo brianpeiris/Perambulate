@@ -17,6 +17,7 @@
 
     var ROTATION_OFFSET = new THREE.Quaternion().setFromAxisAngle(
         new THREE.Vector3(0, 0, 1), -Math.PI / 2);
+
     LeapHandHelper.prototype.getPalmQuaternion = function (hand) {
         var quaternion = new THREE.Quaternion().setFromRotationMatrix(
             getMatrixFromArray(hand.indexFinger.metacarpal.matrix()));
@@ -24,5 +25,16 @@
         quaternion.multiply(ROTATION_OFFSET);
         return quaternion;
     };
+
+    var getBoneCenter = function (bone) {
+        return new THREE.Vector3().fromArray(bone.center());
+    };
+
+    LeapHandHelper.prototype.fingerBent = function (finger) {
+        var metacarpalPosition = getBoneCenter(finger.metacarpal);
+        var proximalPosition = getBoneCenter(finger.proximal);
+        return metacarpalPosition.distanceTo(proximalPosition) < 0.05;
+    };
+
     window.LeapHandHelper = LeapHandHelper;
 }());

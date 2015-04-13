@@ -2,16 +2,19 @@
     'use strict';
     var CAMERA_OFFSET = new THREE.Vector3(0, 0, 0.25);
 
-    var App = function (width, height, cavnvas) {
+    var App = function (width, height, scene, camera, renderer) {
         this.width = width;
         this.height = height;
+        this.scene = scene;
+        // this.camera = camera;
+        this.renderer = renderer;
     };
 
     App.prototype.init = function () {
         this._initThree();
         this._initVR();
         this._initCannon();
-        this._initScene();
+        // this._initScene();
         this._initLeap();
         this.workbench = new Workbench(
             this.world, this.scene, Leap.loopController);
@@ -24,9 +27,7 @@
         this.camera = new THREE.PerspectiveCamera(
             75, this.width / this.height, 0.1, 100 );
         this.camera.position.add(CAMERA_OFFSET);
-        this.renderer = new THREE.WebGLRenderer();
-
-        window.document.body.appendChild(this.renderer.domElement);
+        // this.renderer = new THREE.WebGLRenderer();
     };
 
     App.prototype._initVR = function () {
@@ -68,6 +69,7 @@
             new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         this.groundBody.addShape(groundShape);
         this.world.add(this.groundBody);
+
         this.groundMesh = new THREE.Mesh(
             new THREE.PlaneGeometry(200, 200, 8, 8),
             new THREE.MeshLambertMaterial({
@@ -77,7 +79,9 @@
     };
 
     App.prototype._initLeap = function () {
-        Leap.loop();
+        Leap.loop({
+            optimizeHMD: true
+        });
         Leap.loopController.use('transform', {
             vr: true,
             effectiveParent: this.camera,
@@ -99,8 +103,8 @@
         this.camera.position.add(CAMERA_OFFSET);
         // }
 
-        this.groundMesh.position.copy(this.groundBody.position);
-        this.groundMesh.quaternion.copy(this.groundBody.quaternion);
+        // this.groundMesh.position.copy(this.groundBody.position);
+        // this.groundMesh.quaternion.copy(this.groundBody.quaternion);
 
         this.workbench.update(elapsed);
 

@@ -66,7 +66,7 @@
         }
 
         if (this.currentActuator) {
-            var actuatorQuaternion = 
+            var actuatorQuaternion =
             this.currentActuator.body.quaternion.copy(handHelper.palmQuaternion);
             var actuatorPosition = handHelper.palmPosition.clone().add(
                 POSITION_OFFSET.clone().applyQuaternion(handHelper.palmQuaternion));
