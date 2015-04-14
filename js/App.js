@@ -6,7 +6,6 @@
         this.width = width;
         this.height = height;
         this.scene = scene;
-        // this.camera = camera;
         this.renderer = renderer;
     };
     _.extend(App.prototype, Backbone.Events);
@@ -27,7 +26,6 @@
         this.camera = new THREE.PerspectiveCamera(
             75, this.width / this.height, 0.1, 100 );
         this.camera.position.add(CAMERA_OFFSET);
-        // this.renderer = new THREE.WebGLRenderer();
     };
 
     App.prototype._initVR = function () {
@@ -50,15 +48,6 @@
         this.world.gravity.set(0, 0, 0);
         this.world.broadphase = new CANNON.NaiveBroadphase();
         this.world.solver.iterations = 10;
-    };
-
-    App.prototype._initScene = function () {
-        this.scene = new THREE.Scene();
-
-        this.scene.add(new THREE.AmbientLight(0x404040));
-        var light = new THREE.DirectionalLight(0xffffff, 0.5);
-        light.position.set(10, 10, 0);
-        this.scene.add(light);
 
         var groundShape = new CANNON.Plane();
         this.groundBody = new CANNON.Body({
@@ -69,13 +58,6 @@
             new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         this.groundBody.addShape(groundShape);
         this.world.add(this.groundBody);
-
-        this.groundMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(200, 200, 8, 8),
-            new THREE.MeshLambertMaterial({
-                color: 0xe6e6e6, side: THREE.DoubleSide})
-        );
-        this.scene.add(this.groundMesh);
     };
 
     App.prototype._initLeap = function () {
@@ -103,8 +85,6 @@
         this.camera.position.add(CAMERA_OFFSET);
         // }
 
-        // this.groundMesh.position.copy(this.groundBody.position);
-        // this.groundMesh.quaternion.copy(this.groundBody.quaternion);
 
         this.workbench.update(elapsed);
 
