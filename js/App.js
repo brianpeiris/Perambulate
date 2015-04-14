@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    var CAMERA_OFFSET = new THREE.Vector3(0, 0, 0.5);
+    var CAMERA_OFFSET = new THREE.Vector3(0, 0.1, 0.2);
 
     var App = function (width, height, scene, camera, renderer) {
         this.width = width;
@@ -14,7 +14,6 @@
         this._initThree();
         this._initVR();
         this._initCannon();
-        // this._initScene();
         this._initLeap();
         this.workbench = new Workbench(
             this.world, this.scene, Leap.loopController);
@@ -67,8 +66,6 @@
         Leap.loopController.use('transform', {
             vr: true,
             effectiveParent: this.camera,
-            //vr: 'desktop',
-            //position: new THREE.Vector3(0, -0.1, 0)
         });
         Leap.loopController.use('boneHand', {
             scene: this.scene
@@ -81,10 +78,7 @@
         var elapsed = timestamp - this.start;
 
         this.controls.update();
-        // if (this.manager.isVRMode()) {
         this.camera.position.add(CAMERA_OFFSET);
-        // }
-
 
         this.workbench.update(elapsed);
 
