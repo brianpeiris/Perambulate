@@ -2,27 +2,40 @@
     var MainControls = function (scene, leapController) {
         this.scene = scene;
         this.leapController = leapController;
+        this.visible = true;
 
         var mainControlsEl = document.querySelector('#mainControls');
         this.controlBase = mainControlsEl.glam.object.transform;
         this.controlObject = mainControlsEl.glam.object.getChild(0).getChild(0);
-        this.addActuatorButton = new PushButton(
+
+        this.addActuatorButton = this.createButton('.addActuator', 'addActuatorPressed');
+        this.activateActuatorsButton = this.createButton(
+            '.activateActuators', 'activateActuatorsPressed');
+        this.enableGravityButton = this.createButton(
+            '.enableGravity', 'enableGravityPressed');
+
+        this.leapController.on('frame', this.showControls.bind(this));
+    };
+    _.extend(MainControls.prototype, Backbone.Events);
+
+    MainControls.prototype.createButton = function (selector, eventName) {
+        var button = new PushButton(
             new InteractablePlane(
-                document.querySelector('.addActuator').glam.object.visuals[0].object,
-                leapController),
+                document.querySelector(selector).glam.object.visuals[0].object,
+                this.leapController),
             {
                 locking: false,
                 longThrow: -0.01,
                 shortThrow: -0.005
             }
         );
-        this.addActuatorButton.on('press', function (mesh) {
-            this.trigger('addActuatorPressed');
+        button.on('press', function (mesh) {
+            if (this.visible) {
+                this.trigger(eventName);
+            }
         }.bind(this));
-        this.leapController.on('frame', this.showControls.bind(this));
-        this.visible = true;
+        return button;
     };
-    _.extend(MainControls.prototype, Backbone.Events);
 
     MainControls.prototype.poseDetected = function (handHelper, hand) {
         // handHelper.fingerStraight(hand.indexFinger);

@@ -1,6 +1,6 @@
 (function () {
     'use strict';
-    var CAMERA_OFFSET = new THREE.Vector3(0, 0, 0.25);
+    var CAMERA_OFFSET = new THREE.Vector3(0, 0, 0.5);
 
     var App = function (width, height, scene, camera, renderer) {
         this.width = width;

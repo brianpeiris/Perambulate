@@ -5,17 +5,22 @@
     var HEIGHT = 0.05;
 
     var Actuator = function (options) {
-        options = options || {};
-        this.amplitude = options.amplitude === undefined ? 1 : options.amplitude;
+        this.options = options || {};
+        this.amplitude = (
+            this.options.amplitude === undefined ? 1 : this.options.amplitude);
 
+        this.actuators = [];
         this.topActuators = [];
         this.topActuatorConstraints = [];
+        this.bottomActuators = [];
+        this.bottomActuatorConstraints = [];
 
         this.shape = new CANNON.Box(new CANNON.Vec3(
             WIDTH, HEIGHT, WIDTH));
-        this.body = new CANNON.Body({mass: 1, position: options.position});
+        this.body = new CANNON.Body({mass: 1, position: this.options.position});
         this.body.addShape(this.shape);
         this.body.angularDamping = 0.5;
+        console.log('created', this.options.color, this.body.id);
 
         var geometry = new THREE.BoxGeometry(
             WIDTH * MESH_SCALE,
@@ -23,7 +28,7 @@
             WIDTH * MESH_SCALE
         );
         this.material = new THREE.MeshLambertMaterial({
-            color: options.color
+            color: this.options.color
         });
         this.mesh = new THREE.Mesh(geometry, this.material);
     };
@@ -41,39 +46,73 @@
         var bodyHeight = HEIGHT * this.scale;
         this.shape.halfExtents.y = bodyHeight;
 
+        var pivotPosition = bodyHeight + HEIGHT * CONSTRAINT_OFFSET;
         this.topActuatorConstraints.forEach(function (topActuatorConstraint) {
-            topActuatorConstraint.pivotA.y = bodyHeight + HEIGHT * CONSTRAINT_OFFSET;
+            topActuatorConstraint.pivotA.y = pivotPosition;
+        });
+
+        this.bottomActuatorConstraints.forEach(function (bottomActuatorConstraint) {
+            bottomActuatorConstraint.pivotA.y = -pivotPosition;
         });
 
         this.shape.updateConvexPolyhedronRepresentation();
     };
 
-    var TOP_JOIN_POINT = new CANNON.Vec3(0, HEIGHT + HEIGHT * CONSTRAINT_OFFSET, 0);
-    var BOTTOM_JOIN_POINT = new CANNON.Vec3(0, -HEIGHT - HEIGHT * CONSTRAINT_OFFSET, 0);
+    var JOIN_POINT_POS = HEIGHT + HEIGHT * CONSTRAINT_OFFSET;
+    var TOP_JOIN_POINT = new CANNON.Vec3(0, JOIN_POINT_POS, 0);
+    var BOTTOM_JOIN_POINT = new CANNON.Vec3(0, -JOIN_POINT_POS, 0);
 
-    Actuator.prototype.addTopActuator = function (actuator) {
-        if (this.topActuators.length === 0)  {
+    Actuator.prototype.joinToLocation = function (
+        actuator,
+        joinedActuators, joinedActuatorConstraints,
+        thisTop, otherTop
+    ) {
+        if (joinedActuators.length === 0)  {
             var joinMesh = new THREE.Mesh(
                 new THREE.SphereGeometry(HEIGHT * CONSTRAINT_OFFSET),
                 this.material
             );
-            joinMesh.position.set(0, HEIGHT + HEIGHT * CONSTRAINT_OFFSET, 0);
+            var joinMeshY = thisTop ?  JOIN_POINT_POS : -JOIN_POINT_POS;
+            joinMesh.position.set(0, joinMeshY, 0);
             this.mesh.add(joinMesh);
         }
-        this.topActuators.push(actuator);
+        joinedActuators.push(actuator);
         var actuatorConstraint = new CANNON.PointToPointConstraint(
             this.body,
-            TOP_JOIN_POINT,
+            thisTop ? TOP_JOIN_POINT : BOTTOM_JOIN_POINT,
             actuator.body,
-            BOTTOM_JOIN_POINT
+            otherTop ? TOP_JOIN_POINT : BOTTOM_JOIN_POINT
         );
-        this.topActuatorConstraints.push(actuatorConstraint);
-        console.log('joined actuators');
+        joinedActuatorConstraints.push(actuatorConstraint);
         return actuatorConstraint;
     };
 
+    var closerToTop = function (quaternion, contactPosition) {
+        var distanceToTop = contactPosition.distanceTo(
+            quaternion.vmult(TOP_JOIN_POINT));
+        var distanceToBottom = contactPosition.distanceTo(
+            quaternion.vmult(BOTTOM_JOIN_POINT));
+        return distanceToTop < distanceToBottom;
+    };
+
+    Actuator.prototype.joinTo = function (actuator, contact) {
+        this.actuators.push(actuator);
+        var thisTop = closerToTop(contact.bi.quaternion, contact.ri);
+        var otherTop = closerToTop(contact.bj.quaternion, contact.rj);
+        if (thisTop) {
+            return this.joinToLocation(
+                actuator, this.topActuators, this.topActuatorConstraints,
+                thisTop, otherTop);
+        }
+        else {
+            return this.joinToLocation(
+                actuator, this.bottomActuators, this.bottomActuatorConstraints,
+                thisTop, otherTop);
+        }
+    };
+
     Actuator.prototype.isJoinedTo = function (actuator) {
-        return this.topActuators.indexOf(actuator) !== -1;
+        return this.actuators.indexOf(actuator) !== -1;
     };
 
     window.Actuator = Actuator;

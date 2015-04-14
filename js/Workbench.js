@@ -13,8 +13,21 @@
         this.leapController.on('frame', this.interact.bind(this));
 
         this.mainControls = new MainControls(this.scene, this.leapController);
+        var colorCounter = 0;
+        var colors = [
+            'purple',
+            'yellow',
+            'green',
+            'pink',
+            'orange'
+        ];
         this.mainControls.on('addActuatorPressed', function () {
-            this.addActuator('purple', new CANNON.Vec3(0, 0, 0));
+            this.addActuator(colors[colorCounter], new CANNON.Vec3(0, 0, 0));
+            colorCounter++;
+        }.bind(this));
+        this.mainControls.on('activateActuatorsPressed', function () {
+            this.addActuator('blue', new CANNON.Vec3(0.1, 0, 0));
+            this.addActuator('red', new CANNON.Vec3(-0.1, 0, 0));
         }.bind(this));
     };
 
@@ -33,10 +46,10 @@
     };
 
     Workbench.prototype.joinActuators = function (event) {
-        var target = this.bodyActuatorMap[event.target.id];
-        var body = this.bodyActuatorMap[event.body.id];
+        var target = this.bodyActuatorMap[event.contact.bi.id];
+        var body = this.bodyActuatorMap[event.contact.bj.id];
         if (target.isJoinedTo(body) || body.isJoinedTo(target)) { return; }
-        this.world.addConstraint(body.addTopActuator(target));
+        this.world.addConstraint(target.joinTo(body, event.contact));
     };
 
     var DISTANCE_THRESHOLD = 0.1;
