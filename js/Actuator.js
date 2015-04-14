@@ -19,6 +19,7 @@
             WIDTH, HEIGHT, WIDTH));
         this.body = new CANNON.Body({mass: 1, position: this.options.position});
         this.body.addShape(this.shape);
+        this.body.linearDamping = 0.5;
         this.body.angularDamping = 0.5;
         console.log('created', this.options.color, this.body.id);
 
