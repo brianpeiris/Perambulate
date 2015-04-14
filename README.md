@@ -28,6 +28,8 @@ The app can sometimes start in a bad state. You'll notice that lights are much d
 
 Your construction can sometimes go crazy if two actuators join at weird angles or when you don't mean to. This can probably be improved but it's partly due to the Leap Motion's glitches. See the link to the troubleshooting guide above.
 
+The slider widget on the actuator control panel kinda sucks. It doesn't behave as you'd expect and doesn't like being angled in odd positions. I'm going to have to submit some patches to Leap Motion's widget library.
+
 ## Attributions
 
 - Three.js by mrdoob et al. - https://github.com/mrdoob/three.js
