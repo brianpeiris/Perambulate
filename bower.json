@@ -4,6 +4,7 @@
     "cannon.js": "schteppe/cannon.js#v0.6.2",
     "leapjs": "4f50e58ba916d65fba48b3f39566047ec659a9f6",
     "leapjs-plugins": "158dbd7fdf6d53d21df515445d68fc0909c1d126",
+    "leapjs-widgets": "leapmotion/leapjs-widgets#1b9a9c11ff041fd8048cd58ae9c827ecc546a4db",
     "three.js": "brianpeiris/three.js#c9fd6070edd0ce9e4156d23d7e954eb7bb43c3d0",
     "glam": "brianpeiris/glam#579c0adef531d8d7e31d589f2d4c314a264b577f",
     "webvr-boilerplate": "borismus/webvr-boilerplate#95af06476e62621fb2c677f3ca05d5e0dfffa408",

@@ -13,6 +13,9 @@
         this.leapController.on('frame', this.interact.bind(this));
 
         this.mainControls = new MainControls(this.scene, this.leapController);
+        this.mainControls.on('addActuatorPressed', function () {
+            this.addActuator('purple', new CANNON.Vec3(0, 0, 0));
+        }.bind(this));
     };
 
     Workbench.prototype.addActuator = function (color, position) {
@@ -36,12 +39,16 @@
         this.world.addConstraint(body.addTopActuator(target));
     };
 
+    var DISTANCE_THRESHOLD = 0.1;
     Workbench.prototype.getClosestActuator = function (position) {
-        var closest;
+        var closest = null;
         var closestDistance;
         this.actuators.forEach(function (actuator) {
             var currentDistance = position.distanceTo(actuator.body.position);
-            if (!closest || currentDistance < closestDistance) {
+            if (
+                (!closest || currentDistance < closestDistance) &&
+                currentDistance < DISTANCE_THRESHOLD
+            ) {
                 closest = actuator;
                 closestDistance = currentDistance;
             }

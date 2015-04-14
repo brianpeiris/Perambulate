@@ -30,10 +30,24 @@
         return new THREE.Vector3().fromArray(bone.center());
     };
 
-    LeapHandHelper.prototype.fingerBent = function (finger) {
+    var getFingerPositionDetails = function (finger) {
         var metacarpalPosition = getBoneCenter(finger.metacarpal);
         var proximalPosition = getBoneCenter(finger.proximal);
-        return metacarpalPosition.distanceTo(proximalPosition) < 0.05;
+        var boneLength = finger.metacarpal.length + finger.proximal.length;
+        var distance = metacarpalPosition.distanceTo(proximalPosition);
+        return {distance: distance, boneLength: boneLength};
+    };
+
+    LeapHandHelper.prototype.fingerStraight = function (finger) {
+        var details = getFingerPositionDetails(finger);
+        var threshold = details.boneLength * 0.479;
+        return details.distance > threshold;
+    };
+
+    LeapHandHelper.prototype.fingerBent = function (finger) {
+        var details = getFingerPositionDetails(finger);
+        var threshold = details.boneLength * 0.453;
+        return details.distance < threshold;
     };
 
     window.LeapHandHelper = LeapHandHelper;

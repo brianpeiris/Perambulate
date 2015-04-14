@@ -6,14 +6,35 @@
         var mainControlsEl = document.querySelector('#mainControls');
         this.controlBase = mainControlsEl.glam.object.transform;
         this.controlObject = mainControlsEl.glam.object.getChild(0).getChild(0);
+        this.addActuatorButton = new PushButton(
+            new InteractablePlane(
+                document.querySelector('.addActuator').glam.object.visuals[0].object,
+                leapController),
+            {
+                locking: false,
+                longThrow: -0.01,
+                shortThrow: -0.005
+            }
+        );
+        this.addActuatorButton.on('press', function (mesh) {
+            this.trigger('addActuatorPressed');
+        }.bind(this));
         this.leapController.on('frame', this.showControls.bind(this));
         this.visible = true;
     };
+    _.extend(MainControls.prototype, Backbone.Events);
 
     MainControls.prototype.poseDetected = function (handHelper, hand) {
+        // handHelper.fingerStraight(hand.indexFinger);
+        // handHelper.fingerBent(hand.indexFinger);
+        // return false;
         return (
-            handHelper.fingerBent(hand.middleFinger) ||
-            handHelper.fingerBent(hand.ringFinger)
+            handHelper.fingerStraight(hand.indexFinger) &&
+            (
+                handHelper.fingerBent(hand.middleFinger) ||
+                handHelper.fingerBent(hand.ringFinger)
+            ) &&
+            handHelper.fingerStraight(hand.pinky)
         );
     };
 

@@ -5,13 +5,17 @@
             html, body, * { margin: 0; padding: 0; background: black; }
             .glamContainer { width: 100%; height: 100%; position: absolute; }
             .ground { color: grey; backface-visibility: visible; shader: lambert; }
-            .controlsBase { color: red; shader: lambert; }
+            .controlsBase { color: grey; shader: lambert; }
             .button {
-                color: blue;
+                color: white;
                 shader: lambert;
-                radius: 0.02;
-                height: 0.02;
-                rx: 90deg;
+                width: 0.04;
+                height: 0.04;
+                z: 0.03;
+                backface-visibility: visible;
+            }
+            .addActuator {
+                image: url(img/glyphicons-433-plus.png);
             }
         </style>
     </head>
@@ -30,6 +34,7 @@
 
         <script src="bower_components/leapjs/leap-0.6.4.js"></script>
         <script src="bower_components/leapjs-plugins/main/leap-plugins-0.1.11pre.js"></script>
+        <script src="bower_components/leapjs-widgets/build/leap-widgets-0.1.0.js"></script>
 
         <script src="bower_components/three.js/examples/js/renderers/Projector.js"></script>
         <script src="bower_components/glam/libs/tween.js/tween.min.js"></script>
@@ -51,9 +56,9 @@
                                 class="controlsBase"
                                 width="0.2" height="0.05" depth="0.01"
                                 x="0.18">
-                                <cylinder class="button"></cylinder>
-                                <cylinder class="button" x="0.05"></cylinder>
-                                <cylinder class="button" x="0.10"></cylinder>
+                                <rect class="button addActuator" x="-0.05"></rect>
+                                <rect class="button"></rect>
+                                <rect class="button" x="0.05"></rect>
                             </box>
                         </group>
                     </group>

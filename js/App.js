@@ -9,6 +9,7 @@
         // this.camera = camera;
         this.renderer = renderer;
     };
+    _.extend(App.prototype, Backbone.Events);
 
     App.prototype.init = function () {
         this._initThree();
@@ -21,7 +22,6 @@
         this.trigger('initialized');
         this._animate();
     };
-    _.extend(App.prototype, Backbone.Events);
 
     App.prototype._initThree = function () {
         this.camera = new THREE.PerspectiveCamera(
