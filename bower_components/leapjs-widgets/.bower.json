@@ -1,0 +1,12 @@
+{
+  "name": "leapjs-widgets",
+  "homepage": "https://github.com/leapmotion/leapjs-widgets",
+  "_release": "1b9a9c11ff",
+  "_resolution": {
+    "type": "commit",
+    "commit": "1b9a9c11ff041fd8048cd58ae9c827ecc546a4db"
+  },
+  "_source": "git://github.com/leapmotion/leapjs-widgets.git",
+  "_target": "1b9a9c11ff041fd8048cd58ae9c827ecc546a4db",
+  "_originalSource": "leapmotion/leapjs-widgets"
+}

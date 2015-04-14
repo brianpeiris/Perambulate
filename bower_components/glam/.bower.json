@@ -1,0 +1,44 @@
+{
+  "name": "glam",
+  "homepage": "https://github.com/tparisi/glam",
+  "authors": [
+    "Tony Parisi <tparisi@gmail.com>"
+  ],
+  "description": "glam (GL And Markup) is a declaritive language for creating 3D web content.",
+  "main": "build/glam.js",
+  "keywords": [
+    "WebGL",
+    "3D",
+    "WebVR"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "tests",
+    "images",
+    "models",
+    "utils",
+    "fonts",
+    "img",
+    "docs",
+    "src",
+    "sounds",
+    "examples",
+    "shaders",
+    "demos",
+    "css",
+    "javascripts",
+    "*.html",
+    "params.json",
+    "README.md",
+    "server"
+  ],
+  "_release": "579c0adef5",
+  "_resolution": {
+    "type": "commit",
+    "commit": "579c0adef531d8d7e31d589f2d4c314a264b577f"
+  },
+  "_source": "git://github.com/brianpeiris/glam.git",
+  "_target": "579c0adef531d8d7e31d589f2d4c314a264b577f",
+  "_originalSource": "brianpeiris/glam"
+}

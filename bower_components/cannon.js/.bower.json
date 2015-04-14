@@ -1,0 +1,14 @@
+{
+  "name": "cannon.js",
+  "homepage": "https://github.com/schteppe/cannon.js",
+  "version": "0.6.2",
+  "_release": "0.6.2",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.6.2",
+    "commit": "ef62b6ac82e63e91b0e7a7ed77bc83644af7d1d5"
+  },
+  "_source": "git://github.com/schteppe/cannon.js.git",
+  "_target": "v0.6.2",
+  "_originalSource": "schteppe/cannon.js"
+}

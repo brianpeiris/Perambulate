@@ -1,0 +1,12 @@
+{
+  "name": "webvr-boilerplate",
+  "homepage": "https://github.com/borismus/webvr-boilerplate",
+  "_release": "95af06476e",
+  "_resolution": {
+    "type": "commit",
+    "commit": "95af06476e62621fb2c677f3ca05d5e0dfffa408"
+  },
+  "_source": "git://github.com/borismus/webvr-boilerplate.git",
+  "_target": "95af06476e62621fb2c677f3ca05d5e0dfffa408",
+  "_originalSource": "borismus/webvr-boilerplate"
+}
