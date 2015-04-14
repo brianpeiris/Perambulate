@@ -38,9 +38,6 @@
     };
 
     MainControls.prototype.poseDetected = function (handHelper, hand) {
-        // handHelper.fingerStraight(hand.indexFinger);
-        // handHelper.fingerBent(hand.indexFinger);
-        // return false;
         return (
             handHelper.fingerStraight(hand.indexFinger) &&
             (
@@ -68,8 +65,14 @@
     };
 
     MainControls.prototype.showControls = function (frame) {
-        if (frame.hands.length === 0) { return; }
-        var hand = frame.hands[0];
+        var hand;
+        for (var i = 0; i < frame.hands.length; i++) {
+            if (frame.hands[i].type === 'left') {
+                hand = frame.hands[i];
+            }
+        }
+        if (!hand) { return; }
+
         var handHelper = new LeapHandHelper(hand);
         if (!this.visible && this.poseDetected(handHelper, hand)) {
             this.toggleControls(true);
