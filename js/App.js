@@ -1,6 +1,5 @@
 (function () {
     'use strict';
-    var CAMERA_OFFSET = new THREE.Vector3(0, 0.1, 0.2);
 
     var App = function (width, height, scene, camera, renderer) {
         this.width = width;
@@ -24,7 +23,6 @@
     App.prototype._initThree = function () {
         this.camera = new THREE.PerspectiveCamera(
             75, this.width / this.height, 0.1, 100 );
-        this.camera.position.add(CAMERA_OFFSET);
     };
 
     App.prototype._initVR = function () {
@@ -52,7 +50,7 @@
         this.groundBody = new CANNON.Body({
             mass: 0
         });
-        this.groundBody.position.set(0, -1, 0);
+        this.groundBody.position.set(0, -0.5, 0);
         this.groundBody.quaternion.setFromAxisAngle(
             new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
         this.groundBody.addShape(groundShape);
@@ -78,7 +76,6 @@
         var elapsed = timestamp - this.start;
 
         this.controls.update();
-        this.camera.position.add(CAMERA_OFFSET);
 
         this.workbench.update(elapsed);
 

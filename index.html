@@ -2,9 +2,9 @@
 <html>
     <head>
         <style>
-            html, body, * { margin: 0; padding: 0; background: black; }
+            html, body, * { margin: 0; padding: 0; background: #6CB6EB; }
             .glamContainer { width: 100%; height: 100%; position: absolute; }
-            .ground { color: darkgrey; backface-visibility: visible; shader: lambert; }
+            .ground { color: #0B4F03; backface-visibility: visible; shader: lambert; }
             .controlsBase { color: grey; shader: lambert; }
             .button {
                 color: white;
@@ -22,6 +22,9 @@
             }
             .enableGravity {
                 image: url(img/glyphicons-182-download-alt.png);
+            }
+            .actuatorSetting {
+                image: url(img/glyphicons-186-screenshot.png);
             }
         </style>
     </head>
@@ -53,19 +56,31 @@
         <div class="glamContainer">
             <glam id="glamRoot">
                 <scene>
-                    <light type="directional" x="10" y="10"></light>
+                    <light type="directional" x="10" y="20" style="color:#808080"></light>
                     <light type="ambient" style="color:#404040"></light>
-                    <rect class="ground" y="-1" width="100" height="100" rx="90deg"></rect>
-                    <box width="0.01" height="0.01" depth="0.01"></box>
+                    <rect class="ground" y="-0.5" width="100" height="100" rx="90deg"></rect>
+                    <box width="0.01" height="0.01" depth="0.01" z="-0.2"></box>
                     <group id="mainControls">
                         <group ry="90deg">
                             <box
                                 class="controlsBase"
-                                width="0.2" height="0.05" depth="0.01"
+                                width="0.2" height="0.07" depth="0.01"
                                 x="0.18">
                                 <rect class="button addActuator" x="-0.05"></rect>
                                 <rect class="button activateActuators"></rect>
                                 <rect class="button enableGravity" x="0.05"></rect>
+                            </box>
+                        </group>
+                    </group>
+                    <group id="actuatorControls">
+                        <group rx="180deg" ry="-90deg">
+                            <box
+                                class="controlsBase"
+                                width="0.2" height="0.07" depth="0.01"
+                                x="0.2">
+                                <rect
+                                    class="button actuatorSetting"
+                                    x="-0.1" y="-0.035"></rect>
                             </box>
                         </group>
                     </group>
@@ -75,6 +90,8 @@
 
         <script src="js/Actuator.js"></script>
         <script src="js/LeapHandHelper.js"></script>
+        <script src="js/Controls.js"></script>
+        <script src="js/ActuatorControls.js"></script>
         <script src="js/MainControls.js"></script>
         <script src="js/Workbench.js"></script>
         <script src="js/App.js"></script>
