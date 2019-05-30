@@ -1,99 +1,77 @@
-(function () {
-    'use strict';
+import * as THREE from "three";
+import * as CANNON from "cannon";
 
-    var App = function (width, height, scene, camera, renderer) {
-        this.width = width;
-        this.height = height;
-        this.scene = scene;
-        this.renderer = renderer;
-    };
-    _.extend(App.prototype, Backbone.Events);
+import Workbench from "./Workbench";
 
-    App.prototype.init = function () {
-        this._initThree();
-        this._initVR();
-        this._initCannon();
-        this._initLeap();
-        this.workbench = new Workbench(
-            this.world, this.scene, Leap.loopController);
-        this.trigger('initialized');
-        this._animate();
-    };
+var App = function() {};
 
-    App.prototype._initThree = function () {
-        this.camera = new THREE.PerspectiveCamera(
-            75, this.width / this.height, 0.1, 100 );
-    };
+App.prototype.init = function() {
+  this._initThree();
+  this._initCannon();
+  this.workbench = new Workbench(this.world, this.scene);
+  this._animate();
+};
 
-    App.prototype._initVR = function () {
-        this.controls = new THREE.VRControls(this.camera);
+App.prototype._initThree = function() {
+  this.scene = new THREE.Scene();
+  const light = new THREE.DirectionalLight();
+  light.position.set(10, 10, 10);
+  this.scene.add(light);
+  this.renderer = new THREE.WebGLRenderer({ antialias: true });
+  this.renderer.vr.enabled = true;
+  const controller1 = this.renderer.vr.getController(0);
+  const controller2 = this.renderer.vr.getController(1);
+  this.scene.add(controller1);
+  this.scene.add(controller2);
 
-        this.effect = new THREE.VREffect(this.renderer);
-        this.effect.setSize(this.width, this.height);
+  var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+  var line = new THREE.Line(geometry);
+  line.name = "line";
+  line.scale.z = 5;
+  controller1.add(line.clone());
+  controller2.add(line.clone());
 
-        this.manager = new WebVRManager(this.renderer, this.effect);
-    };
+  this.renderer.setAnimationLoop(this._animate.bind(this));
+  this.camera = new THREE.PerspectiveCamera();
+};
 
-    App.prototype.zeroSensor = function () {
-        if (this.controls) {
-            this.controls.zeroSensor();
-        }
-    };
+App.prototype._initCannon = function() {
+  this.world = new CANNON.World();
+  this.world.gravity.set(0, 0, 0);
+  this.world.broadphase = new CANNON.NaiveBroadphase();
+  this.world.solver.iterations = 10;
 
-    App.prototype._initCannon = function () {
-        this.world = new CANNON.World();
-        this.world.gravity.set(0, 0, 0);
-        this.world.broadphase = new CANNON.NaiveBroadphase();
-        this.world.solver.iterations = 10;
+  var groundShape = new CANNON.Plane();
+  this.groundBody = new CANNON.Body({
+    mass: 0
+  });
+  this.groundBody.position.set(0, -0.5, 0);
+  this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
+  this.groundBody.addShape(groundShape);
+  this.world.add(this.groundBody);
+};
 
-        var groundShape = new CANNON.Plane();
-        this.groundBody = new CANNON.Body({
-            mass: 0
-        });
-        this.groundBody.position.set(0, -0.5, 0);
-        this.groundBody.quaternion.setFromAxisAngle(
-            new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
-        this.groundBody.addShape(groundShape);
-        this.world.add(this.groundBody);
-    };
+App.prototype._animate = function(timestamp) {
+  timestamp = timestamp || 0;
+  if (!this.start) {
+    this.start = timestamp;
+  }
+  var elapsed = timestamp - this.start;
 
-    App.prototype._initLeap = function () {
-        Leap.loop({
-            optimizeHMD: true
-        });
-        Leap.loopController.use('transform', {
-            vr: true,
-            effectiveParent: this.camera,
-        });
-        Leap.loopController.use('boneHand', {
-            scene: this.scene
-        });
-    };
+  this.workbench.update(elapsed);
 
-    App.prototype._animate = function (timestamp) {
-        timestamp = timestamp || 0;
-        if (!this.start) { this.start = timestamp; }
-        var elapsed = timestamp - this.start;
+  var TIMESTEP = 1 / 60;
+  this.world.step(TIMESTEP, elapsed);
 
-        this.controls.update();
+  this.renderer.render(this.scene, this.camera);
+};
 
-        this.workbench.update(elapsed);
+App.prototype.resizeView = function(width, height) {
+  this.width = width;
+  this.height = height;
+  this.camera.aspect = this.width / this.height;
+  this.camera.updateProjectionMatrix();
+  this.renderer.setSize(this.width, this.height);
+};
 
-        var TIMESTEP = 1 / 60;
-        this.world.step(TIMESTEP, elapsed);
-
-        this.manager.render(this.scene, this.camera);
-
-        requestAnimationFrame(this._animate.bind(this));
-    };
-
-    App.prototype.resizeView = function (width, height) {
-        this.width = width;
-        this.height = height;
-        this.camera.aspect = this.width / this.height;
-        this.camera.updateProjectionMatrix();
-        this.effect.setSize(this.width, this.height);
-    };
-
-    window.App = App;
-}());
+export default App;

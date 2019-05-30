@@ -1,35 +1,16 @@
-(function () {
-    var startApp = function () {
-        var app = new App(
-            window.innerWidth, window.innerHeight,
-            glam.Graphics.instance.scene,
-            glam.Graphics.instance.camera,
-            glam.Graphics.instance.renderer
-        );
+import * as WEBVR from "exports-loader?WEBVR!three/examples/js/vr/WebVR";
+import App from "./App";
 
-        window.addEventListener('resize', function () {
-            app.resizeView(window.innerWidth, window.innerHeight);
-        });
+var app = new App(window.innerWidth, window.innerHeight);
 
-        window.addEventListener('keydown', function (event) {
-            if (event.keyCode === 'Z'.charCodeAt(0) ) {
-                app.zeroSensor();
-            }
-        });
+app.init();
+app.resizeView(window.innerWidth, window.innerHeight);
+document.body.append(app.renderer.domElement);
 
-        app.on('initialized', function () {
-            window.document.querySelector('.loading-indicator').style.display = 'none';
-        });
+document.body.append(WEBVR.createButton(app.renderer));
 
-        app.init();
-    };
+document.querySelector(".loading-indicator").style.display = "none";
 
-    var glamReadyIntervalId = setInterval(function () {
-        if (glam.DOM.isReady) {
-            clearInterval(glamReadyIntervalId);
-            glam.DOM.viewers.glamRoot.app.controllerScript.controls.enabled = false;
-            glam.Application.instance.runloop = function () {};
-            startApp();
-        }
-    }, 10);
-}());
+window.addEventListener("resize", function() {
+  app.resizeView(window.innerWidth, window.innerHeight);
+});

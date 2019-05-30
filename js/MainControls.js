@@ -1,14 +1,13 @@
-(function () {
-    var MainControls = function (scene, leapController) {
-        Controls.call(this, scene, leapController, '#mainControls', true);
+import Controls from "./Controls";
 
-        this.addActuatorButton = this.createButton(
-            '.addActuator', 'addActuatorPressed', false);
-        this.activateActuatorsButton = this.createButton(
-            '.activateActuators', 'activateActuatorsPressed', true);
-        this.enableGravityButton = this.createButton(
-            '.enableGravity', 'enableGravityPressed', true);
-    };
-    MainControls.prototype = Object.create(Controls.prototype);
-    window.MainControls = MainControls;
-}());
+class MainControls extends Controls {
+  constructor(scene) {
+    super(scene, true);
+
+    this.addActuatorButton = this.createButton("addActuatorPressed", false);
+    this.activateActuatorsButton = this.createButton("activateActuatorsPressed", true);
+    this.enableGravityButton = this.createButton("enableGravityPressed", true);
+    this.enableGravityButton = this.createButton("enableGravityPressed", true);
+  }
+}
+export default MainControls;
