@@ -11,7 +11,7 @@ class Controls extends EventTarget {
       new THREE.BoxBufferGeometry(BUTTON_SIZE, BUTTON_SIZE, 0.01),
       new THREE.MeshStandardMaterial()
     );
-    this.base.position.z = -2;
+    this.base.position.set(0, 1, -0.3);
     scene.add(this.base);
     this.visible = false;
     this.poseUp = poseUp;

@@ -22,7 +22,6 @@ class ActuatorControls extends Controls {
         moveZ: false
       }
     );
-    plane.name = "foo";
     plane.movementConstraints.y = function(y) {
       if (y < 0) {
         return 0;
@@ -45,8 +44,6 @@ class ActuatorControls extends Controls {
       "release",
       function(plane) {
         if (this.visible) {
-          console.log(plane.mesh.position.x, this.xmax);
-          console.log(plane.mesh.position.y, this.ymax);
           this.trigger(eventName, plane.mesh.position.x / this.xmax, plane.mesh.position.y / this.ymax);
         }
       }.bind(this)
@@ -55,11 +52,13 @@ class ActuatorControls extends Controls {
   }
 
   setX(x) {
+    return;
     this.actuatorSettingButton.mesh.position.setX(x * this.xmax);
     this.actuatorSettingButton.lastPosition.setX(x * this.xmax);
   }
 
   setY(y) {
+    return;
     this.actuatorSettingButton.mesh.position.setY(y * this.ymax);
     this.actuatorSettingButton.lastPosition.setY(y * this.ymax);
   }

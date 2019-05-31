@@ -2,7 +2,7 @@
   "name": "Perambulate",
   "private": true,
   "scripts": {
-    "start": "webpack-dev-server js/index.js -o bundle.js --mode development -w"
+    "start": "webpack-dev-server js/index.js -o bundle.js --mode development -w --host 0.0.0.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

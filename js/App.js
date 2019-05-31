@@ -8,7 +8,7 @@ var App = function() {};
 App.prototype.init = function() {
   this._initThree();
   this._initCannon();
-  this.workbench = new Workbench(this.world, this.scene);
+  this.workbench = new Workbench(this.world, this.scene, this.controllers);
   this._animate();
 };
 
@@ -19,17 +19,31 @@ App.prototype._initThree = function() {
   this.scene.add(light);
   this.renderer = new THREE.WebGLRenderer({ antialias: true });
   this.renderer.vr.enabled = true;
+
   const controller1 = this.renderer.vr.getController(0);
+  controller1.addEventListener("selectstart", () => {
+    controller1.pressed = true;
+  });
+  controller1.addEventListener("selectend", () => {
+    controller1.pressed = false;
+  });
   const controller2 = this.renderer.vr.getController(1);
+  controller2.addEventListener("selectstart", () => {
+    controller2.pressed = true;
+  });
+  controller2.addEventListener("selectend", () => {
+    controller2.pressed = false;
+  });
   this.scene.add(controller1);
   this.scene.add(controller2);
-
-  var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -1)]);
+  var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -0.1)]);
   var line = new THREE.Line(geometry);
   line.name = "line";
   line.scale.z = 5;
   controller1.add(line.clone());
   controller2.add(line.clone());
+
+  this.controllers = [controller1, controller2];
 
   this.renderer.setAnimationLoop(this._animate.bind(this));
   this.camera = new THREE.PerspectiveCamera();

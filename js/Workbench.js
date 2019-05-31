@@ -6,9 +6,10 @@ import Actuator from "./Actuator";
 import MainControls from "./MainControls";
 import ActuatorControls from "./ActuatorControls";
 
-var Workbench = function(world, scene) {
+var Workbench = function(world, scene, controllers) {
   this.world = world;
   this.scene = scene;
+  this.controllers = controllers;
   this.actuatorsActivated = false;
 
   this.actuators = [];
@@ -17,8 +18,8 @@ var Workbench = function(world, scene) {
   this.selectedActuator = null;
   this.heldActuators = {};
 
-  this.addActuator("white", new CANNON.Vec3(0.1, 0, -0.2));
-  this.addActuator("white", new CANNON.Vec3(-0.1, 0, -0.2));
+  this.addActuator("white", new CANNON.Vec3(0.1, 1, -0.2));
+  this.addActuator("white", new CANNON.Vec3(-0.1, 1, -0.2));
 
   const mainControls = new MainControls(this.scene);
   mainControls.addEventListener(
@@ -90,9 +91,9 @@ Workbench.prototype.getClosestActuator = function(position) {
 
 var ZERO = new CANNON.Vec3(0, 0, 0);
 var YAXIS = new CANNON.Vec3(0, 1, 0);
-Workbench.prototype.createHinge = function(hand, currentActuator) {
-  var constraintBody = (this.heldActuators[hand.type + "constraintBody"] = new CANNON.Body());
-  var constraint = (this.heldActuators[hand.type + "constraint"] = new CANNON.HingeConstraint(
+Workbench.prototype.createHinge = function(i, currentActuator) {
+  var constraintBody = (this.heldActuators[i + "constraintBody"] = new CANNON.Body());
+  var constraint = (this.heldActuators[i + "constraint"] = new CANNON.HingeConstraint(
     constraintBody,
     currentActuator.body,
     {
@@ -107,47 +108,38 @@ Workbench.prototype.createHinge = function(hand, currentActuator) {
 };
 
 var POSITION_OFFSET = new THREE.Vector3(0.015, -0.005, -0.01);
-var GRAB_STRENGTH_THRESHOLD = 0.8;
 var GRAB_DISTANCE_THRESHOLD = 0.1;
 var SELECTION_DISTANCE_THRESHOLD = 0.05;
-Workbench.prototype.interact = function(frame) {
-  for (var i = 0; i < frame.hands.length; i++) {
-    var hand = frame.hands[i];
-    var currentActuator = this.heldActuators[hand.type];
-    var constraintBody = this.heldActuators[hand.type + "constraintBody"];
-    var handHelper = new LeapHandHelper(hand);
+Workbench.prototype.interact = function() {
+  for (let i = 0; i < this.controllers.length; i++) {
+    const controller = this.controllers[i];
+    var currentActuator = this.heldActuators[i];
+    var constraintBody = this.heldActuators[i + "constraintBody"];
 
-    var closestActuator = this.getClosestActuator(handHelper.palmPosition);
-    var distanceToPalm = closestActuator && closestActuator.body.position.distanceTo(handHelper.palmPosition);
-    if (
-      !currentActuator &&
-      hand.grabStrength > GRAB_STRENGTH_THRESHOLD &&
-      closestActuator &&
-      distanceToPalm < GRAB_DISTANCE_THRESHOLD
-    ) {
-      this.heldActuators[hand.type] = currentActuator = closestActuator;
+    var closestActuator = this.getClosestActuator(controller.position);
+    var distanceToController = closestActuator && closestActuator.body.position.distanceTo(controller.position);
+    if (!currentActuator && controller.pressed && closestActuator && distanceToController < GRAB_DISTANCE_THRESHOLD) {
+      this.heldActuators[i] = currentActuator = closestActuator;
       if (currentActuator) {
-        constraintBody = this.createHinge(hand, currentActuator);
+        constraintBody = this.createHinge(i, currentActuator);
       }
     }
 
-    if (hand.grabStrength <= GRAB_STRENGTH_THRESHOLD) {
+    if (!controller.pressed) {
       if (currentActuator) {
-        this.world.removeConstraint(this.heldActuators[hand.type + "constraint"]);
+        this.world.removeConstraint(this.heldActuators[i + "constraint"]);
         this.actuators.forEach(
           function(actuator) {
             actuator.body.velocity.setZero();
           }.bind(this)
         );
       }
-      this.heldActuators[hand.type] = currentActuator = null;
-      this.heldActuators[hand.type + "constraintBody"] = constraintBody = null;
-      this.heldActuators[hand.type + "constraint"] = null;
+      this.heldActuators[i] = currentActuator = null;
+      this.heldActuators[i + "constraintBody"] = constraintBody = null;
+      this.heldActuators[i + "constraint"] = null;
 
       if (closestActuator && this.selectedActuator !== closestActuator) {
-        var distalPosition = new THREE.Vector3().fromArray(hand.indexFinger.distal.center());
-        var distanceToClosest = distalPosition.distanceTo(closestActuator.body.position);
-        if (distanceToClosest < SELECTION_DISTANCE_THRESHOLD) {
+        if (distanceToController < SELECTION_DISTANCE_THRESHOLD) {
           if (this.selectedActuator) {
             this.selectedActuator.mesh.material.color.setHex(0xffffff);
           }
@@ -160,17 +152,18 @@ Workbench.prototype.interact = function(frame) {
     }
 
     if (currentActuator) {
-      var actuatorQuaternion = handHelper.palmQuaternion.clone();
+      var actuatorQuaternion = controller.quaternion.clone();
       constraintBody.quaternion.copy(actuatorQuaternion);
 
-      var rotatedOffset = POSITION_OFFSET.clone().applyQuaternion(handHelper.palmQuaternion);
-      var actuatorPosition = handHelper.palmPosition.clone().add(rotatedOffset);
+      var rotatedOffset = POSITION_OFFSET.clone().applyQuaternion(controller.quaternion);
+      var actuatorPosition = controller.position.clone().add(rotatedOffset);
       constraintBody.position.copy(actuatorPosition);
     }
   }
 };
 
 Workbench.prototype.update = function(elapsed) {
+  this.interact();
   this.actuators.forEach(
     function(actuator) {
       actuator.stepBody(elapsed);
