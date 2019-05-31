@@ -21,23 +21,24 @@ var Workbench = function(world, scene, controllers) {
   this.addActuator("white", new CANNON.Vec3(0.1, 1, -0.2));
   this.addActuator("white", new CANNON.Vec3(-0.1, 1, -0.2));
 
-  const mainControls = new MainControls(this.scene);
-  mainControls.addEventListener(
+  this.mainControls = new MainControls(this.scene);
+  window.m = this.mainControls;
+  this.mainControls.addEventListener(
     "addActuatorPressed",
     function() {
-      this.addActuator("white", new CANNON.Vec3(0, 0, -0.2));
+      this.addActuator("white", new CANNON.Vec3(0, 1, -0.2));
     }.bind(this)
   );
-  mainControls.addEventListener(
+  this.mainControls.addEventListener(
     "activateActuatorsPressed",
-    function(pressed) {
-      this.actuatorsActivated = pressed;
+    function(e) {
+      this.actuatorsActivated = e.detail.on;
     }.bind(this)
   );
-  mainControls.addEventListener(
+  this.mainControls.addEventListener(
     "enableGravityPressed",
-    function(pressed) {
-      this.world.gravity.set(0, pressed ? -1.8 : 0, 0);
+    function(e) {
+      this.world.gravity.set(0, e.detail.on ? -1.8 : 0, 0);
     }.bind(this)
   );
 
@@ -164,6 +165,7 @@ Workbench.prototype.interact = function() {
 
 Workbench.prototype.update = function(elapsed) {
   this.interact();
+  this.mainControls.update(this.controllers);
   this.actuators.forEach(
     function(actuator) {
       actuator.stepBody(elapsed);

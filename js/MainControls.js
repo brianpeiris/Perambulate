@@ -4,10 +4,9 @@ class MainControls extends Controls {
   constructor(scene) {
     super(scene, true);
 
-    this.addActuatorButton = this.createButton("addActuatorPressed", false);
-    this.activateActuatorsButton = this.createButton("activateActuatorsPressed", true);
-    this.enableGravityButton = this.createButton("enableGravityPressed", true);
-    this.enableGravityButton = this.createButton("enableGravityPressed", true);
+    this.addButton("img/plus.png", "addActuatorPressed", true);
+    this.addButton("img/play.png", "activateActuatorsPressed");
+    this.addButton("img/down.png", "enableGravityPressed");
   }
 }
 export default MainControls;

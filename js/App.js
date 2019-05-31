@@ -47,6 +47,12 @@ App.prototype._initThree = function() {
 
   this.renderer.setAnimationLoop(this._animate.bind(this));
   this.camera = new THREE.PerspectiveCamera();
+  const dolly = new THREE.Object3D();
+  dolly.add(this.camera);
+  if (navigator.userAgent.toLowerCase().includes("firefox")) {
+    dolly.position.set(0, -0.5, 1);
+  }
+  this.scene.add(dolly);
 };
 
 App.prototype._initCannon = function() {
@@ -59,7 +65,7 @@ App.prototype._initCannon = function() {
   this.groundBody = new CANNON.Body({
     mass: 0
   });
-  this.groundBody.position.set(0, -0.5, 0);
+  this.groundBody.position.set(0, 0.5, 0);
   this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
   this.groundBody.addShape(groundShape);
   this.world.add(this.groundBody);
