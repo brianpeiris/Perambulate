@@ -22,7 +22,7 @@ class ActuatorControls extends Controls {
   }
 
   setY(y) {
-    this.knob.position.y = 0.1 * y - 0.05;
+    this.knob.position.y = 0.1 * y;
   }
 
   update(controllers) {
@@ -44,7 +44,7 @@ class ActuatorControls extends Controls {
           new CustomEvent("actuatorSettingReleased", {
             detail: {
               x: (this.knob.position.x + 0.1) / 0.2,
-              y: (this.knob.position.y + 0.05) / 0.1
+              y: this.knob.position.y / 0.1
             }
           })
         );

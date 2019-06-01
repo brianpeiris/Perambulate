@@ -75,7 +75,7 @@ App.prototype._initCannon = function() {
   this.groundBody = new CANNON.Body({
     mass: 0
   });
-  this.groundBody.position.set(0, 0.5, 0);
+  this.groundBody.position.set(0, 0.7, 0);
   this.groundBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2);
   this.groundBody.addShape(groundShape);
   this.world.add(this.groundBody);
