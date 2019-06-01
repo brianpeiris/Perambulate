@@ -29,7 +29,7 @@ var Actuator = function(options) {
 
 var CONSTRAINT_OFFSET = 0.7;
 
-Actuator.prototype.stepBody = function(elapsed) {
+Actuator.prototype.stepBody = function() {
   this.mesh.position.copy(this.body.position);
   this.mesh.quaternion.copy(this.body.quaternion);
 };

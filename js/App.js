@@ -8,7 +8,7 @@ var App = function() {};
 App.prototype.init = function() {
   this._initThree();
   this._initCannon();
-  this.workbench = new Workbench(this.world, this.scene, this.controllers);
+  this.workbench = new Workbench(this.world, this.scene);
   this._animate();
 };
 
@@ -36,12 +36,22 @@ App.prototype._initThree = function() {
   });
   this.scene.add(controller1);
   this.scene.add(controller2);
-  var geometry = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, -0.1)]);
-  var line = new THREE.Line(geometry);
-  line.name = "line";
-  line.scale.z = 5;
-  controller1.add(line.clone());
-  controller2.add(line.clone());
+  controller1.add(
+    new THREE.Mesh(
+      new THREE.SphereBufferGeometry(0.025),
+      new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5 })
+    )
+  );
+  controller1.children[0].geometry.computeBoundingSphere();
+  controller1.children[0].geometry.txBoundingSphere = controller1.children[0].geometry.boundingSphere.clone();
+  controller2.add(
+    new THREE.Mesh(
+      new THREE.SphereBufferGeometry(0.025),
+      new THREE.MeshStandardMaterial({ transparent: true, opacity: 0.5 })
+    )
+  );
+  controller2.children[0].geometry.computeBoundingSphere();
+  controller2.children[0].geometry.txBoundingSphere = controller2.children[0].geometry.boundingSphere.clone();
 
   this.controllers = [controller1, controller2];
 
@@ -78,7 +88,11 @@ App.prototype._animate = function(timestamp) {
   }
   var elapsed = timestamp - this.start;
 
-  this.workbench.update(elapsed);
+  for (const controller of this.controllers) {
+    controller.children[0].geometry.txBoundingSphere.copy(controller.children[0].geometry.boundingSphere);
+    controller.children[0].geometry.txBoundingSphere.applyMatrix4(controller.matrix);
+  }
+  this.workbench.update(elapsed, this.controllers);
 
   var TIMESTEP = 1 / 60;
   this.world.step(TIMESTEP, elapsed);

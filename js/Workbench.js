@@ -6,10 +6,9 @@ import Actuator from "./Actuator";
 import MainControls from "./MainControls";
 import ActuatorControls from "./ActuatorControls";
 
-var Workbench = function(world, scene, controllers) {
+var Workbench = function(world, scene) {
   this.world = world;
   this.scene = scene;
-  this.controllers = controllers;
   this.actuatorsActivated = false;
 
   this.actuators = [];
@@ -22,7 +21,7 @@ var Workbench = function(world, scene, controllers) {
   this.addActuator("white", new CANNON.Vec3(-0.1, 1, -0.2));
 
   this.mainControls = new MainControls(this.scene);
-  window.m = this.mainControls;
+  this.mainControls.base.position.x = -0.3;
   this.mainControls.addEventListener(
     "addActuatorPressed",
     function() {
@@ -43,9 +42,12 @@ var Workbench = function(world, scene, controllers) {
   );
 
   this.actuatorControls = new ActuatorControls(this.scene);
+  this.actuatorControls.base.position.x = 0.3;
   this.actuatorControls.addEventListener(
     "actuatorSettingReleased",
-    function(x, y) {
+    function(e) {
+      if (!this.selectedActuator) return;
+      const { x, y } = e.detail;
       this.selectedActuator.phase = x;
       this.selectedActuator.amplitude = y;
     }.bind(this)
@@ -111,9 +113,9 @@ Workbench.prototype.createHinge = function(i, currentActuator) {
 var POSITION_OFFSET = new THREE.Vector3(0.015, -0.005, -0.01);
 var GRAB_DISTANCE_THRESHOLD = 0.1;
 var SELECTION_DISTANCE_THRESHOLD = 0.05;
-Workbench.prototype.interact = function() {
-  for (let i = 0; i < this.controllers.length; i++) {
-    const controller = this.controllers[i];
+Workbench.prototype.interact = function(controllers) {
+  for (let i = 0; i < controllers.length; i++) {
+    const controller = controllers[i];
     var currentActuator = this.heldActuators[i];
     var constraintBody = this.heldActuators[i + "constraintBody"];
 
@@ -163,9 +165,10 @@ Workbench.prototype.interact = function() {
   }
 };
 
-Workbench.prototype.update = function(elapsed) {
-  this.interact();
-  this.mainControls.update(this.controllers);
+Workbench.prototype.update = function(elapsed, controllers) {
+  this.interact(controllers);
+  this.mainControls.update(controllers);
+  this.actuatorControls.update(controllers);
   this.actuators.forEach(
     function(actuator) {
       actuator.stepBody(elapsed);
