@@ -11,7 +11,7 @@ class Button extends EventTarget {
     this.loader = new THREE.TextureLoader();
     this.mesh = new THREE.Mesh(
       new THREE.BoxBufferGeometry(BUTTON_SIZE - BUTTON_MARGIN, BUTTON_SIZE - BUTTON_MARGIN, 0.02),
-      new THREE.MeshStandardMaterial({ color: "red", map: this.loader.load(img), transparent: true })
+      new THREE.MeshStandardMaterial({ color: "grey", map: this.loader.load(img) })
     );
     this.pressed = false;
     this.entered = false;
@@ -23,10 +23,10 @@ class Button extends EventTarget {
     }
     if (entered !== this.entered) {
       if (this.momentary) {
-        this.mesh.material.emissive.setHex(entered ? 0x00ff00 : 0x000000);
+        this.mesh.material.color.setHex(entered ? 0x00ff00 : 0x000000);
       } else if (entered) {
         this.pressed = !this.pressed;
-        this.mesh.material.emissive.setHex(this.pressed ? 0x00ff00 : 0x000000);
+        this.mesh.material.color.setHex(this.pressed ? 0x00ff00 : 0x000000);
       }
       if (entered) {
         this.dispatchEvent(new CustomEvent("pressed", { detail: { on: this.pressed } }));
@@ -37,7 +37,7 @@ class Button extends EventTarget {
 }
 
 class Controls extends EventTarget {
-  constructor(scene, poseUp) {
+  constructor(scene) {
     super();
     this.scene = scene;
     this.base = new THREE.Mesh(
@@ -46,10 +46,6 @@ class Controls extends EventTarget {
     );
     this.base.position.set(0, 1, -0.3);
     scene.add(this.base);
-    this.visible = false;
-    this.poseUp = poseUp;
-    this.lastDetected = new Date();
-    this.lastPoseState = false;
     this.buttons = [];
   }
   addButton(img, eventName, momentary) {
