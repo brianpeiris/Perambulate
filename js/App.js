@@ -16,6 +16,7 @@ App.prototype._initThree = function() {
   this.scene = new THREE.Scene();
   const light = new THREE.DirectionalLight();
   light.position.set(10, 10, 10);
+  this.scene.add(new THREE.HemisphereLight(0x002233, 0x333333));
   this.scene.add(light);
   this.renderer = new THREE.WebGLRenderer({ antialias: true });
   this.renderer.vr.enabled = true;

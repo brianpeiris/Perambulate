@@ -39,6 +39,7 @@ class ActuatorControls extends Controls {
       }
     }
     if (entered !== this.entered) {
+      this.knob.material.color.setHex(entered ? 0x00ff00 : 0x808080);
       if (!entered) {
         this.dispatchEvent(
           new CustomEvent("actuatorSettingReleased", {

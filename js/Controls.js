@@ -11,7 +11,7 @@ class Button extends EventTarget {
     this.loader = new THREE.TextureLoader();
     this.mesh = new THREE.Mesh(
       new THREE.BoxBufferGeometry(BUTTON_SIZE - BUTTON_MARGIN, BUTTON_SIZE - BUTTON_MARGIN, 0.02),
-      new THREE.MeshStandardMaterial({ color: "grey", map: this.loader.load(img) })
+      new THREE.MeshStandardMaterial({ color: 0x808080, map: this.loader.load(img) })
     );
     this.pressed = false;
     this.entered = false;
@@ -23,10 +23,10 @@ class Button extends EventTarget {
     }
     if (entered !== this.entered) {
       if (this.momentary) {
-        this.mesh.material.color.setHex(entered ? 0x00ff00 : 0x000000);
+        this.mesh.material.color.setHex(entered ? 0x00ff00 : 0x808080);
       } else if (entered) {
         this.pressed = !this.pressed;
-        this.mesh.material.color.setHex(this.pressed ? 0x00ff00 : 0x000000);
+        this.mesh.material.color.setHex(this.pressed ? 0x00ff00 : 0x808080);
       }
       if (entered) {
         this.dispatchEvent(new CustomEvent("pressed", { detail: { on: this.pressed } }));
